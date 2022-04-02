@@ -1,0 +1,13 @@
+{
+    "version":"2.0.0",
+    "tasks": [
+        {
+            "label": "mia",
+            "group": "test",
+            "command": "bash",
+            "args": [
+                "-c", "(cd ${fileDirname} && source ~/Working/bin/activate && python3 ${fileDirname}/${fileBasename})"
+            ]
+        }
+    ]
+}
