@@ -1,3 +1,4 @@
 git remote remove origin
-read -p "Enter repo name:" repo
-git remote add origin git@github.com:SunCreation/${repo}.git
+read -p "Enter git name: " git
+read -p "Enter repo name: " repo
+git remote add origin git@github.com:${git}/${repo}.git
