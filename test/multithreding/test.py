@@ -1,6 +1,6 @@
 from time import time
 
-num_list = ['p1','p2','p3','p4']*4
+num_list = [f'p{i}' for i in range(1,17)]
 
 start = time()
 
@@ -13,7 +13,7 @@ def count(name):
 for i in num_list:
     count(i)
 
-print('time:', time() -start)
+print('직렬 처리 time:', time() -start)
 
 
 from multiprocessing import Pool
@@ -25,7 +25,7 @@ if __name__=='__main__':
     pool.close()
     pool.join()
 
-print('time:', time() -start)
+print('병렬 처리 time:', time() -start)
 
 
 
