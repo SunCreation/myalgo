@@ -9,11 +9,13 @@ def count(name):
         a = 1 + 2
 
     print('finish:'+name+"\n")
+    return name
 
-for i in num_list:
-    count(i)
+# for i in num_list:
+#     count(i)
 
-print('직렬 처리 time:', time() -start)
+# print('직렬 처리 time:', time() -start)
+
 
 
 from multiprocessing import Pool
@@ -23,7 +25,8 @@ if __name__=='__main__':
     pool = Pool(processes=16)
     pool.map(count, num_list)
     pool.close()
-    pool.join()
+    output = pool.join()
+    print(pool)
 
 print('병렬 처리 time:', time() -start)
 
