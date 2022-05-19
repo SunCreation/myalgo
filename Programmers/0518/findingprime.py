@@ -1,4 +1,5 @@
 # 한자리 숫자가 적힌 종이 조각이 
+# 무튼 숫자들을 다 
 # 이거 풀어서 뭐 할 수 있는걸까?
 from itertools import permutations
 
