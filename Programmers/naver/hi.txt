@@ -1,0 +1,540 @@
+Python and Pillow 를 활용하여 격자 그리기 Drawing Grids With Python and Pillow
+갈루아의 반서재
+이 영역을 누르면 첫 페이지로 이동
+갈루아의 반서재 블로그의 첫 페이지로 이동
+갈루아의 반서재
+사이드바 열기
+페이지 맨 위로 올라가기
+갈루아의 반서재
+Alex’s Antilibrary : My collection of unread books
+내가 가진 지식은 보물이 아니다. 내가 모르는 것들이 내가 아는 것보다 훨씬 가치있다.
+문장전달자 블로그 정보 보기
+Python and Pillow 를 활용하여 격자 그리기 Drawing Grids With Python and Pillow
+2021. 2. 7. 20:55
+프로그래밍 Programming
+ 
+728x90
+Python 과 Pillow 를 이용하여 이미지에 격자를 그리는 예제를 구현해보자. 먼저 그레이스케일의 600*600 픽셀 크기의 빈 이미지를 이용하여 세부내용을 학습한 다음, Argparse를 이용하여 새 이미지의 너비, 높이, 그리고 간격을 인수로 입력받아 실행해보고, 그렇게 그려진 격자 이미지를 저장하는 예제를 구현해본다. 마지막으로 빈 이미지가 아니라 이미지를 불러와서 해당 이미지 위에 격자를 그리고 저장하는 것으로 마무리한다.
+ 
+먼저 아래에서 보듯이 600*600 픽셀의 빈 이미지를 만들어보자. 아래의 코드는 모두 주피터 노트북에서 실행하였다.  
+from PIL import Image
+import matplotlib.pyplot as plt
+if __name__ == '__main__':
+    height = 600
+    width = 600
+    image = Image.new(mode='P', size=(height, width), color=255)
+    plt.imshow(image)
+여기에 사용된 Image.new() 함수 관련해서는 아래 설명을 참고한다. 
+PIL.Image.new(mode, size, color=1)[source]
+모드와 크기를 입력받아 새로운 이미지를 생성한다. 해당 함수의 파라메터는 다음과 같으며, Image 객체를 반환한다.
+mode - 이미지의 모드는 픽셀의 타입과 심도를 나타내는 문자열이다. 각 픽셀의 비트 심도의 전대역을 사용하게 된다. 즉, 1비트 픽셀은 0 또는1의 값을 가지게 되고, 8비트 픽셀은 0~255 사이의 값을 가지게 되는 식이다. Mode 관련한 자세한 설명은 Modes를 참고한다.  
+size – 너비와 높이값을 가지는 튜플
+color – 이미지에 사용될 컬러로, 기본값은 검정이다. 
+자세히 보기 pillow.readthedocs.io/en/stable/reference/Image.html#constructing-images
+ 
+이제 ImageDraw 모듈을 이용하여 새로운 이미지에 격자를 그려보자. 간단한 예제로 정중앙에 세로로 선을 그려보자. 다음과 같다. 
+from PIL import Image, ImageDraw
+import matplotlib.pyplot as plt
+if __name__ == '__main__':
+    height = 600
+    width = 600
+    image = Image.new(mode='P', size=(height, width), color=255)
+    # Draw a line
+    draw = ImageDraw.Draw(image)
+    x = image.width / 2
+    y_start = 0
+    y_end = image.height
+    line = ((x, y_start), (x, y_end))
+    draw.line(line, fill=128)
+    del draw
+    plt.imshow(image)
+ 
+ 
+그러면 다음으로 하나가 아닌 여러개의 격자를 그려보자. 아래에서와 같이 너비(600픽셀)를 10으로 나누어서  각각의 간격을 60픽셀로 두고 수직선을 그려넣어보자. 
+from PIL import Image, ImageDraw
+import matplotlib.pyplot as plt
+if __name__ == '__main__':
+    height = 600
+    width = 600
+    image = Image.new(mode='P', size=(height, width), color=255)
+    # Draw some lines
+    draw = ImageDraw.Draw(image)
+    y_start = 0
+    y_end = image.height
+    step_size = int(image.width / 10)
+    for x in range(0, image.width, step_size):
+        line = ((x, y_start), (x, y_end))
+        draw.line(line, fill=128)
+    del draw
+    plt.imshow(image)
+ 
+이제 가로로도 선을 그어 진짜 격자무늬를 구현해보자. 
+from PIL import Image, ImageDraw
+import matplotlib.pyplot as plt
+if __name__ == '__main__':
+    height = 600
+    width = 600
+    image = Image.new(mode='P', size=(height, width), color=255)
+    # Draw some lines
+    draw = ImageDraw.Draw(image)
+    y_start = 0
+    y_end = image.height
+    step_size = int(image.width / 10)
+    for x in range(0, image.width, step_size):
+        line = ((x, y_start), (x, y_end))
+        draw.line(line, fill=128)
+    x_start = 0
+    x_end = image.width
+    for y in range(0, image.height, step_size):
+        line = ((x_start, y), (x_end, y))
+        draw.line(line, fill=128)
+    del draw
+    plt.imshow(image)
+ 
+그러면 이제 칸의 갯수를 지정해서 그려보자.  한 줄내에 포함될 칸의 갯수를 step_count 라는 인수로 입력한다.
+from PIL import Image, ImageDraw
+import matplotlib.pyplot as plt
+if __name__ == '__main__':
+    step_count = 25
+    height = 600
+    width = 600
+    image = Image.new(mode='P', size=(height, width), color=255)
+    # Draw some lines
+    draw = ImageDraw.Draw(image)
+    y_start = 0
+    y_end = image.height
+    step_size = int(image.width / step_count)
+    for x in range(0, image.width, step_size):
+        line = ((x, y_start), (x, y_end))
+        draw.line(line, fill=128)
+    x_start = 0
+    x_end = image.width
+    for y in range(0, image.height, step_size):
+        line = ((x_start, y), (x_end, y))
+        draw.line(line, fill=128)
+    del draw
+    plt.imshow(image)
+ 
+좋다. 이제는 매번 소스를 수정할 것이 아니라 커맨드라인에서 직접 칸의 수를 입력할 수 있도록 수정해보자. 다음의 코드를 grid.py 라는 파일명으로 노트북과 같은 위치에 저장한다. 
+import sys
+from PIL import Image, ImageDraw
+import matplotlib.pyplot as plt
+if __name__ == '__main__':
+    step_count = 10
+    if len(sys.argv) == 2:
+        step_count = int(sys.argv[1])
+    height = 600
+    width = 600
+    image = Image.new(mode='P', size=(height, width), color=255)
+    # Draw some lines
+    draw = ImageDraw.Draw(image)
+    y_start = 0
+    y_end = image.height
+    step_size = int(image.width / step_count)
+    for x in range(0, image.width, step_size):
+        line = ((x, y_start), (x, y_end))
+        draw.line(line, fill=128)
+    x_start = 0
+    x_end = image.width
+    for y in range(0, image.height, step_size):
+        line = ((x_start, y), (x_end, y))
+        draw.line(line, fill=128)
+    del draw
+    plt.imshow(image)
+현재의 경로를 확인하여 현재 실행중인 노트북 파일 (.ipynb) 과 같은 폴더에 위치하고 있는지 확인해보자.
+%pwd
+'/home/pluto'
+ 
+step_count 를 각각 12, 30으로 놓고 실행하면 다음과 같이 한 줄에 각각 12개, 30개의 칸을 가진 격자가 그려짐을 알 수 있다. 
+%run grid.py 12
+%run grid.py 30
+ 
+이제는 칸수(step count)뿐만 아니라, 너비와 높이도 위와 같은 식으로 커맨드라인에서 인수형태로 입력하여 실행할 수 있게 해보자. 이제 여기서부터는 sys.argv 를 아니라 argparse 를 사용한다. 파일이름을 grid2.py 로 저장했다.
+import argparse
+from PIL import Image, ImageDraw
+import matplotlib.pyplot as plt
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument("width", help="width of image in pixels",
+                        type=int)
+    parser.add_argument("height", help="height of image in pixels",
+                        type=int)
+    parser.add_argument("step_count", help="how many steps across the grid",
+                        type=int)
+    args = parser.parse_args()
+    step_count = args.step_count
+    height = args.height
+    width = args.width
+    image = Image.new(mode='P', size=(height, width), color=255)
+    # Draw some lines
+    draw = ImageDraw.Draw(image)
+    y_start = 0
+    y_end = image.height
+    step_size = int(image.width / step_count)
+    for x in range(0, image.width, step_size):
+        line = ((x, y_start), (x, y_end))
+        draw.line(line, fill=128)
+    x_start = 0
+    x_end = image.width
+    for y in range(0, image.height, step_size):
+        line = ((x_start, y), (x_end, y))
+        draw.line(line, fill=128)
+    del draw
+    plt.imshow(image)
+이 상태에서 주피터 노트북에서 다음과 같이 실행하면, 너비, 높이, 칸수(step_count)를 입력하라는 에러가 발생한다.
+%run grid2.py
+usage: grid2.py [-h] width height step_count
+grid2.py: error: the following arguments are required: width, height, step_count
+An exception has occurred, use %tb to see the full traceback.
+SystemExit: 2
+도움말이 필요한 경우 -h 옵션을 붙여 실행한다. 
+%run grid2.py -h
+usage: grid2.py [-h] width height step_count
+positional arguments:
+  width       width of image in pixels
+  height      height of image in pixels
+  step_count  how many steps across the grid
+optional arguments:
+  -h, --help  show this help message and exit
+너비와 높이를 각각 500 픽셀로 지정하고, 칸수를 20으로 주었다.
+%run grid2.py 500 500 20
+ 
+그러면 이제는 정사각형이 아닌 직사각형으로 구성된 격자를 그려보자. 
+%run grid2.py 400 600 24
+ 
+아웃풋을 보니 너비, 높이가 바뀐 것 같다. 아래 코드와 같이 올바른 순서로 수정한 뒤 grid3.py 라는 이름으로 저장한다.
+import argparse
+from PIL import Image, ImageDraw
+import matplotlib.pyplot as plt
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument("width", help="width of image in pixels",
+                        type=int)
+    parser.add_argument("height", help="height of image in pixels",
+                        type=int)
+    parser.add_argument("step_count", help="how many steps across the grid",
+                        type=int)
+    args = parser.parse_args()
+    step_count = args.step_count
+    height = args.height
+    width = args.width
+    image = Image.new(mode='P', size=(width, height), color=255)
+    # Draw some lines
+    draw = ImageDraw.Draw(image)
+    y_start = 0
+    y_end = image.height
+    step_size = int(image.width / step_count)
+    for x in range(0, image.width, step_size):
+        line = ((x, y_start), (x, y_end))
+        draw.line(line, fill=128)
+    x_start = 0
+    x_end = image.width
+    for y in range(0, image.height, step_size):
+        line = ((x_start, y), (x_end, y))
+        draw.line(line, fill=128)
+    del draw
+    plt.imshow(image)
+%run grid3.py 400 600 24
+ 
+제대로 되었다. 이제 그려진 격자를 이미지로 저장해보자. 코드는 아래와 같다.
+import argparse
+from PIL import Image, ImageDraw
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument("width", help="width of image in pixels",
+                        type=int)
+    parser.add_argument("height", help="height of image in pixels",
+                        type=int)
+    parser.add_argument("step_count", help="how many steps across the grid",
+                        type=int)
+    args = parser.parse_args()
+    step_count = args.step_count
+    height = args.height
+    width = args.width
+    image = Image.new(mode='P', size=(width, height), color=255)
+    # Draw a grid
+    draw = ImageDraw.Draw(image)
+    y_start = 0
+    y_end = image.height
+    step_size = int(image.width / step_count)
+    for x in range(0, image.width, step_size):
+        line = ((x, y_start), (x, y_end))
+        draw.line(line, fill=128)
+    x_start = 0
+    x_end = image.width
+    for y in range(0, image.height, step_size):
+        line = ((x_start, y), (x_end, y))
+        draw.line(line, fill=128)
+    del draw
+    filename = "grid-{}-{}-{}.png".format(width, height, step_count)
+    print("Saving {}".format(filename))
+    image.save(filename)
+아래와 같이 실행하면 grid-1800-2400-50.png 이름으로 저장이 됨을 확인할 수 있다.
+%run grid4.py 1800 2400 50
+Saving grid-1800-2400-50.png
+ 
+해당 폴더에서 생성된 이미지 파일이 존재하는지 확인해보자. 
+ 
+이제는 이미지를 불러와서 그 위에 격자를 그려보자. 먼저 테스트에 사용할 이미지를 Image.open() 함수를 통해 다음과 같이 불러보자. 예제는 파일이름이 img1.jpg 인 1920*1280 픽셀의 크기를 가진 이미지다. 
+from PIL import Image
+import matplotlib.pyplot as plt
+image = Image.open("img1.jpg")
+plt.imshow(image)
+matplotlib.image.AxesImage at 0x7fd3be0a8f40>
+위의 코드를 여기에 적용한 후 grid5.py 이름으로 저장하고 실행해보자. 
+# grid5.py
+import argparse
+from PIL import Image, ImageDraw
+import matplotlib.pyplot as plt
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument("width", help="width of image in pixels",
+                        type=int)
+    parser.add_argument("height", help="height of image in pixels",
+                        type=int)
+    parser.add_argument("step_count", help="how many steps across the grid",
+                        type=int)
+    args = parser.parse_args()
+    step_count = args.step_count
+    height = args.height
+    width = args.width
+    image = Image.open("img1.jpg")
+    image = image.resize((width, height))
+    
+    # Draw some lines
+    draw = ImageDraw.Draw(image)
+    y_start = 0
+    y_end = image.height
+    step_size = int(image.width / step_count)
+    for x in range(0, image.width, step_size):
+        line = ((x, y_start), (x, y_end))
+        draw.line(line, fill=128)
+    x_start = 0
+    x_end = image.width
+    for y in range(0, image.height, step_size):
+        line = ((x_start, y), (x_end, y))
+        draw.line(line, fill=128)
+    del draw
+    plt.imshow(image)
+%run grid5.py 640 480 20
+아래에서 보시다시피 불러온 이미지 위에 격자가 그려졌다. 원래 이미지 크기는 1920*1280 였는데 위에서 보듯이 인수로 입력받은 너비, 높이의 크기로 resize 를 수행한 뒤 격자를 그렸다. 여기서 주의해야할 점은 resize(width, height) 가 아니라 resize((width, height)) 라는 점이다.
+이제 이미지 파일명을 인수로 받아서 처리하는 부분을 추가해보자. 아래 코드를 grid6.py 로 저장한다. 
+import argparse
+from PIL import Image, ImageDraw
+import matplotlib.pyplot as plt
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument("name", help="filename of image",
+                        type=str)
+    parser.add_argument("width", help="width of image in pixels",
+                        type=int)
+    parser.add_argument("height", help="height of image in pixels",
+                        type=int)
+    parser.add_argument("step_count", help="how many steps across the grid",
+                        type=int)
+    args = parser.parse_args()
+    name = args.name
+    width = args.width
+    height = args.height
+    step_count = args.step_count
+    
+    im = Image.open(name)
+    image = im.resize((width, height))
+    # Draw a grid
+    draw = ImageDraw.Draw(image)
+    y_start = 0
+    y_end = image.height
+    step_size = int(image.width / step_count)
+    for x in range(0, image.width, step_size):
+        line = ((x, y_start), (x, y_end))
+        draw.line(line, fill=128)
+    x_start = 0
+    x_end = image.width
+    for y in range(0, image.height, step_size):
+        line = ((x_start, y), (x_end, y))
+        draw.line(line, fill=128)
+    del draw
+    filename = "grid6-{}-{}-{}.jpg".format(width, height, step_count)
+    print("Saving {}".format(filename))
+    image.save(filename)
+img1.jpg 파일을 불러와 너비 640, 높이 480, 그리고 칸수가 20인 격자를 그려서 파일로 저장해보자. 
+%run grid6.py img1.jpg 640 480 20
+Saving grid6-640-480-20.jpg
+ 
+정상적으로 저장이 되었다, 
+저장된 파일을 그려보면 다음고 같다. 가로, 세로 20칸으로 구성된 격자가 그려졌음을 확인할 수 있다.
+ 
+참고 randomgeekery.org/post/2017/11/drawing-grids-with-python-and-pillow/ 
+728x90
+공유하기
+글 요소
+구독하기
+갈루아의 반서재
+저작자표시비영리변경금지 
+카카오스토리
+트위터
+페이스북
+'프로그래밍 Programming' 카테고리의 다른 글
+우분투 20.04에 도커 설치하기 How To Install and Use Docker on Ubuntu 20.04  (0)
+
+2021.03.30
+우분투 로케일 설정 Configure Locales in Ubuntu  (0)
+
+2021.03.30
+Python and Pillow 를 활용하여 격자 그리기 Drawing Grids With Python and Pillow  (0)
+
+2021.02.07
+엑셀을 이용하여 MNIST 신경망 구축하기 Machine Learning MNIST using a Neural Network in Excel (2) - Control 탭 화면해설  (0)
+
+2021.01.25
+엑셀을 이용하여 MNIST 신경망 구축하기 Machine Learning MNIST using a Neural Network in Excel (1) - MNIST training 및 testing 데이터 가져오기  (0)
+
+2021.01.25
+OpenCV 를 이용하여 웹캠 실행하기 Opening Webcam using OpenCV  (0)
+
+2021.01.13
+댓글
+공유하기
+다른 글
+이름
+암호
+운영자에게만 공개
+작성하기
+구독하기
+구독하기
+카카오톡
+카카오톡
+라인
+라인
+트위터
+트위터
+Facebook
+Facebook
+카카오스토리
+카카오스토리
+밴드
+밴드
+네이버 블로그
+네이버 블로그
+Pocket
+Pocket
+Evernote
+Evernote
+우분투 20.04에 도커 설치하기 How To Install and Use Docker on Ubuntu 20.04
+우분투 20.04에 도커 설치하기 How To Install and Use Docker on Ubuntu 20.04
+2021.03.30
+우분투 로케일 설정 Configure Locales in Ubuntu
+우분투 로케일 설정 Configure Locales in Ubuntu
+2021.03.30
+엑셀을 이용하여 MNIST 신경망 구축하기 Machine Learning MNIST using a Neural Network in Excel (2) - Control 탭 화면해설
+엑셀을 이용하여 MNIST 신경망 구축하기 Machine Learning MNIST using a Neural Network in Excel (2) - Control 탭 화면해설
+2021.01.25
+엑셀을 이용하여 MNIST 신경망 구축하기 Machine Learning MNIST using a Neural Network in Excel (1) - MNIST training 및 testing 데이터 가져오기
+엑셀을 이용하여 MNIST 신경망 구축하기 Machine Learning MNIST using a Neural Network in Excel (1) - MNIST training 및 testing 데이터 가져오기
+2021.01.25
+다른 글 더 둘러보기
+우분투 zip/unzip 패키지설치하기 unzip: command not found - How to Install Zip/Unzip in Debian/Ubuntu/Mint
+이 글은 어떠세요?
+우분투 zip/unzip 패키지설치하기 unzip: command not found - How to Install Zip/Unzip in Debian/Ubuntu/Mint
+닫기
+최신
+1
+···
+9
+10
+11
+12
+13
+14
+15
+16
+17
+···
+1486
+다음
+갈루아의 반서재 블로그의 첫 페이지로 이동
+갈루아의 반서재
+사이드바 닫기
+갈루아의 반서재의 첫 페이지로 이동
+사이드바 닫기
+검색
+검색
+메뉴
+ 
+홈
+태그
+미디어로그
+위치로그
+방명록
+카테고리
+			분류 전체보기							(1486)
+						반서재 Antilibrary													(491)
+						프로그래밍 Programming													(531)
+						멘토 FollowTheMentor													(60)
+									무라카미 하루키
+																			(15)
+									우치다 타츠루 內田樹
+																			(0)
+									에드워드 소프 Edward O. Thorp
+																			(0)
+									나심 니콜라스 탈레브
+																			(18)
+									히라노 게이치로
+																			(2)
+									세스 고딘
+																			(7)
+									앤서니 라빈스
+																			(2)
+									토마베치 히데토
+																			(16)
+									요시모토 바나나
+																			(0)
+						수학 Math													(9)
+						암호화폐 Cryptocurrency													(1)
+						엑셀 Become awesome in EXCEL													(18)
+						훈련일지 Workout Log													(1)
+						읽을거리  Reading List													(23)
+						생활정보													(319)
+									어도비 Adobe
+																			(4)
+									구글 Google
+																			(24)
+									핀터레스트 Pinterest
+																			(37)
+									미국공인회계사 USCPA
+																			(223)
+									소셜 SNS
+																			(17)
+아카이브
+2022/05
+2022/04
+2022/03
+2021/04
+2021/03
+블로그 정보 닫기
+블로그 정보 닫기
+문장전달자의 갈루아의 반서재
+갈루아의 반서재
+문장전달자
+블로그 구독하기
+구독하기
+네이버 이웃 맺기
+RSS 피드
+방문자
+전체 방문자 2,293,587
+오늘 1,069
+어제 1,230
+티스토리
+티스토리 홈
+이 블로그 관리하기
+글쓰기
+갈루아의 반서재 블로그 구독하기
+Powered by Tistory / Kakao.
+© 문장전달자.
+Designed by Fraccino.
+페이지 맨 위로 올라가기
+ 
+티스토리툴바
+갈루아의 반서재
+구독하기
+ 

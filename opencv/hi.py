@@ -13,7 +13,7 @@ import cv2
 
 # cv2.destroyAllWindows()
 # %%
-cap = cv2.VideoCapture(-1) # 2
+cap = cv2.VideoCapture(0) # 2
 # %%
 # # %%
 # cap.__dir__()
