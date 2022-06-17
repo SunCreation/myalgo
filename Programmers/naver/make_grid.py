@@ -43,8 +43,8 @@ if __name__ == '__main__':
         draw.line(line, fill=28)
     grid = eval(sys.stdin.read())
     print(grid)
-    for i, line in enumerate(grid):
-        for j, pos in enumerate(line):
+    for j, line in enumerate(grid):
+        for i, pos in enumerate(line):
             if pos==0:
                 line = ((x_ticks[i],y_ticks[j]),(x_ticks[i+1],y_ticks[j+1]))
                 draw.line(line, fill=28)
